@@ -1,13 +1,10 @@
-from lea import Lea
 from collections import Counter, defaultdict
 import argparse
-import os
+import random
+from lea import Lea
 
 
-WORD_LIST_URL = 'http://www.pallier.org/extra/liste.de.mots.francais.frgut.txt'
-
-
-def markov(corpus, start, length):
+def markov(corpus, start=None, length=42):
     # Counting occurrences
     next_one = defaultdict(Counter)
     for sentence in corpus:
@@ -15,6 +12,9 @@ def markov(corpus, start, length):
         nb_words = len(words)
         for i in range(nb_words - 1):
             next_one[words[i]][words[i + 1]] += 1
+        if nb_words:
+            final_word = words[nb_words - 1]
+            next_one[final_word][final_word] += 1  # Last state is absorbing
 
     # Initializing states
     states = {}
@@ -22,7 +22,7 @@ def markov(corpus, start, length):
         states[word] = Lea.fromValFreqsDict(next_one[word])
 
     # Outputting visited states
-    word = start
+    word = start if start is not None else random.choice(list(states.keys()))
     for _ in range(length):
         print(word, end=' ')
         word = states[word].random()
@@ -30,31 +30,24 @@ def markov(corpus, start, length):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Displays a demo.')
-    parser.add_argument('demo_type', type=str, nargs='?', default='text',
-                        help='a type of demo: "text", "music" or "word"')
+    parser = argparse.ArgumentParser(description='Generates tokens.')
+    parser.add_argument('filename', type=str, nargs='?', default='text',
+                        help='For a demo, try files in demo/ or "demo:word"')
     args = parser.parse_args()
 
-    if args.demo_type == 'text':
-        # Generating sentences word by word
-        corpus = ['je mange des cerises',
-                  'je mange des bananes',
-                  'je conduis des camions']
+    with open(args.filename) as f:
+        corpus = f.read().splitlines()
+
+    start = None
+    length = 42
+    if args.filename == 'demo/text.txt':  # Generating sentences word by word
         start = 'je'
         length = 3
-    elif args.demo_type == 'music':
-        # Generating music note by note
-        corpus = ['e d# e d# e b d c a',  # Lettre à Élise de Beethoven
-                  'C E g c e g c e C E g c e g c e C D a d f a d f']  # Bach
+    elif args.filename == 'demo/music.txt':  # Generating music note by note
+        # This corpus contains "Für Elise" from Beethoven, and some Bach
         start = 'e'
         length = 20
-    elif args.demo_type == 'word':
-        # Generating words letter by letter
-        if not os.path.isfile('liste.de.mots.francais.frgut.txt'):
-            print('Downloading {}…'.format(WORD_LIST_URL))
-            os.system('wget {}'.format(WORD_LIST_URL))
-        corpus = [' '.join(list(word)) for word in
-                  open(os.path.basename(WORD_LIST_URL)).read().splitlines()]
+    elif args.filename == 'demo/words.txt':  # Generating words from letters
         start = 'a'
         length = 12
 

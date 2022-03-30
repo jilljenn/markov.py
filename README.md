@@ -1,23 +1,23 @@
 # markov.py
 
-- Compositeur de [La Faute à l'algo](http://fautealgo.fr)
-- <insérer une application accrocheuse ici>
+- Markov chain generator
+- Compositeur de [La Faute à l'algo](https://fautealgo.fr)
 
 ## Install
 
     python3 -m venv venv
     . venv/bin/activate
-    pip install -r requirements.txt  # Install lea (discrete probability distributions)
+    pip install lea==2.3.5  # Discrete probability distributions
 
 ## Usage
 
-    python markov.py <text|music|word>
+    make  # If you want to download [336k-word French dictionary](http://www.pallier.org/extra/liste.de.mots.francais.frgut.txt) demo/words.txt
+    python markov.py <filename>  # For example demo/text.txt
 
-- L'output de `music` est à jouer dans [trinket.io/music](https://trinket.io/music).
-- L'output de `word` se base sur [une liste de 336531 mots du dictionnaire](http://www.pallier.org/extra/liste.de.mots.francais.frgut.txt).
+The output of `python markov.py demo/music.txt` can be played in [trinket.io/music](https://trinket.io/music).
 
-## Exemple
+## Example
 
     je mange des camions
 
-Cf. La Faute à l'algo épisode 1 sur YouTube : [génération procédurale et chaîne de Markov](https://www.youtube.com/watch?v=ngnCE2fCvl4).
+Cf. La Faute à l'algo episode 1 on YouTube (in French): [génération procédurale et chaîne de Markov](https://www.youtube.com/watch?v=ngnCE2fCvl4).
