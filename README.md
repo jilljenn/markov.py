@@ -5,8 +5,6 @@
 
 ## Install
 
-    python3 -m venv venv
-    . venv/bin/activate
     pip install lea==2.3.5  # Discrete probability distributions
 
 ## Usage

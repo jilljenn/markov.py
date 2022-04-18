@@ -4,7 +4,7 @@ import random
 from lea import Lea
 
 
-def markov(corpus, start=None, length=42):
+def markov(corpus, n_seq=1, start=None, length=42):
     # Counting occurrences
     next_one = defaultdict(Counter)
     for sentence in corpus:
@@ -14,7 +14,8 @@ def markov(corpus, start=None, length=42):
             next_one[words[i]][words[i + 1]] += 1
         if nb_words:
             final_word = words[nb_words - 1]
-            next_one[final_word][final_word] += 1  # Last state is absorbing
+            next_one[final_word][-1] += 1
+            next_one[-1][-1] += 1  # Last state is absorbing
 
     # Initializing states
     states = {}
@@ -22,24 +23,33 @@ def markov(corpus, start=None, length=42):
         states[word] = Lea.fromValFreqsDict(next_one[word])
 
     # Outputting visited states
-    word = start if start is not None else random.choice(list(states.keys()))
-    for _ in range(length):
-        print(word, end=' ')
-        word = states[word].random()
-    print(word)
+    for _ in range(n_seq):
+        word = start if start is not None else random.choice(list(states.keys()))
+        for _ in range(length):
+            if word == -1:
+                break
+            print(word, end=' ')
+            word = states[word].random()
+        if word != -1:
+            print(word, end='')
+        print()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generates tokens.')
     parser.add_argument('filename', type=str, nargs='?', default='text',
                         help='For a demo, try files in demo/ or "demo:word"')
+    parser.add_argument('--n', type=int, nargs='?', default=1,
+                        help='How many sequences should be printed')
+    parser.add_argument('--l', type=int, nargs='?', default=42,
+                        help='Length of these sequences')
     args = parser.parse_args()
 
     with open(args.filename) as f:
         corpus = f.read().splitlines()
 
     start = None
-    length = 42
+    length = args.l
     if args.filename == 'demo/text.txt':  # Generating sentences word by word
         start = 'je'
         length = 3
@@ -51,4 +61,4 @@ if __name__ == '__main__':
         start = 'a'
         length = 12
 
-    markov(corpus, start, length)
+    markov(corpus, args.n, start, length)
